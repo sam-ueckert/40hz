@@ -3,6 +3,7 @@ import sys
 from PyQt6.QtWidgets import QApplication
 
 from audio_engine import AudioEngine
+from config import FLASH_INTENSITY, VOLUME_DEFAULT, VOLUME_MAX_AMPLITUDE
 from control_panel import ControlPanel
 from flash_overlay import FlashOverlay, restore_timer_resolution
 
@@ -41,7 +42,7 @@ def main():
         overlay.set_intensity(value)
 
     def on_volume_changed(value):
-        audio.amplitude = value / 333.0  # 0-100 -> 0.0-0.3
+        audio.amplitude = value / 100.0 * VOLUME_MAX_AMPLITUDE
 
     # Wire signals
     panel.monitor_changed.connect(on_monitor_changed)
@@ -52,8 +53,8 @@ def main():
     panel.volume_changed.connect(on_volume_changed)
 
     # Set initial values from panel defaults
-    on_intensity_changed(40)
-    on_volume_changed(30)
+    on_intensity_changed(FLASH_INTENSITY)
+    on_volume_changed(VOLUME_DEFAULT)
     if screens:
         on_monitor_changed(0)
 

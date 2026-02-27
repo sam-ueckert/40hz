@@ -2,6 +2,8 @@ import numpy as np
 import sounddevice as sd
 import threading
 
+from config import CARRIER_FREQ, MOD_FREQ, MOD_DEPTH, AMPLITUDE, AUDIO_BLOCKSIZE, AUDIO_LATENCY
+
 
 class AudioEngine:
     """Generates a 40Hz amplitude-modulated tone on a configurable carrier wave."""
@@ -13,10 +15,10 @@ class AudioEngine:
         self._running = False
 
         # Audio parameters (can be changed while running)
-        self.carrier_freq = 250.0
-        self.mod_freq = 40.0
-        self.mod_depth = 1.0
-        self.amplitude = 0.3
+        self.carrier_freq = CARRIER_FREQ
+        self.mod_freq = MOD_FREQ
+        self.mod_depth = MOD_DEPTH
+        self.amplitude = AMPLITUDE
 
         # Auto-detect sample rate from default output device
         dev_info = sd.query_devices(sd.default.device[1], 'output')
@@ -63,8 +65,8 @@ class AudioEngine:
             channels=1,
             dtype='float32',
             callback=self._audio_callback,
-            blocksize=512,
-            latency='low',
+            blocksize=AUDIO_BLOCKSIZE,
+            latency=AUDIO_LATENCY,
         )
         self._stream.start()
         self._running = True

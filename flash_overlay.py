@@ -5,6 +5,8 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QColor, QPainter
 from PyQt6.QtWidgets import QWidget
 
+from config import MOD_FREQ, TIMER_POLL_MS
+
 
 # Improve Windows timer resolution from ~15.6ms to ~1ms
 try:
@@ -61,7 +63,7 @@ class FlashOverlay(QWidget):
         self._flash_on = False
         self._last_toggle = time.perf_counter()
         self.show()
-        self._timer.start(1)
+        self._timer.start(TIMER_POLL_MS)
 
     def stop_flashing(self):
         self._timer.stop()
@@ -77,8 +79,8 @@ class FlashOverlay(QWidget):
             # Fallback: free-running 40Hz toggle if no audio engine
             now = time.perf_counter()
             elapsed = now - self._last_toggle
-            if elapsed >= 0.0125:  # 12.5ms = half of 40Hz cycle
-                self._last_toggle += 0.0125
+            if elapsed >= 0.5 / MOD_FREQ:  # 12.5ms = half of 40Hz cycle
+                self._last_toggle += 0.5 / MOD_FREQ
                 new_state = not self._flash_on
             else:
                 return

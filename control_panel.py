@@ -10,6 +10,19 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from config import (
+    CARRIER_FREQ,
+    CARRIER_FREQ_MAX,
+    CARRIER_FREQ_MIN,
+    CARRIER_FREQ_STEP,
+    FLASH_INTENSITY,
+    MIN_REFRESH_RATE,
+    MOD_FREQ,
+    VOLUME_DEFAULT,
+    WINDOW_TITLE,
+    WINDOW_WIDTH,
+)
+
 
 class ControlPanel(QWidget):
     """Control GUI for the 40Hz gamma entrainment app."""
@@ -25,8 +38,8 @@ class ControlPanel(QWidget):
         super().__init__()
         self._running = False
         self._screens = []
-        self.setWindowTitle("40Hz Gamma Entrainment")
-        self.setFixedWidth(380)
+        self.setWindowTitle(WINDOW_TITLE)
+        self.setFixedWidth(WINDOW_WIDTH)
         self._build_ui()
 
     def _build_ui(self):
@@ -49,9 +62,9 @@ class ControlPanel(QWidget):
         freq_row = QHBoxLayout()
         freq_row.addWidget(QLabel("Carrier Freq (Hz):"))
         self._freq_spin = QSpinBox()
-        self._freq_spin.setRange(100, 10000)
-        self._freq_spin.setValue(250)
-        self._freq_spin.setSingleStep(10)
+        self._freq_spin.setRange(CARRIER_FREQ_MIN, CARRIER_FREQ_MAX)
+        self._freq_spin.setValue(int(CARRIER_FREQ))
+        self._freq_spin.setSingleStep(CARRIER_FREQ_STEP)
         self._freq_spin.valueChanged.connect(self.carrier_freq_changed.emit)
         freq_row.addWidget(self._freq_spin)
         layout.addLayout(freq_row)
@@ -61,10 +74,10 @@ class ControlPanel(QWidget):
         intensity_row.addWidget(QLabel("Flash Intensity:"))
         self._intensity_slider = QSlider(Qt.Orientation.Horizontal)
         self._intensity_slider.setRange(0, 100)
-        self._intensity_slider.setValue(40)
+        self._intensity_slider.setValue(FLASH_INTENSITY)
         self._intensity_slider.valueChanged.connect(self.intensity_changed.emit)
         intensity_row.addWidget(self._intensity_slider)
-        self._intensity_label = QLabel("40%")
+        self._intensity_label = QLabel(f"{FLASH_INTENSITY}%")
         self._intensity_slider.valueChanged.connect(
             lambda v: self._intensity_label.setText(f"{v}%")
         )
@@ -76,10 +89,10 @@ class ControlPanel(QWidget):
         volume_row.addWidget(QLabel("Volume:"))
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
         self._volume_slider.setRange(0, 100)
-        self._volume_slider.setValue(30)
+        self._volume_slider.setValue(VOLUME_DEFAULT)
         self._volume_slider.valueChanged.connect(self.volume_changed.emit)
         volume_row.addWidget(self._volume_slider)
-        self._volume_label = QLabel("30%")
+        self._volume_label = QLabel(f"{VOLUME_DEFAULT}%")
         self._volume_slider.valueChanged.connect(
             lambda v: self._volume_label.setText(f"{v}%")
         )
@@ -115,10 +128,10 @@ class ControlPanel(QWidget):
     def _on_monitor_changed(self, index):
         if 0 <= index < len(self._screens):
             rate = self._screens[index].refreshRate()
-            if rate < 80:
+            if rate < MIN_REFRESH_RATE:
                 self._refresh_warning.setText(
                     f"Warning: This monitor runs at {rate:.0f}Hz. "
-                    f"40Hz flashing requires 80Hz+ for frame-accurate display. "
+                    f"{MOD_FREQ:.0f}Hz flashing requires {MIN_REFRESH_RATE}Hz+ for frame-accurate display. "
                     f"The flash will still work but timing will be uneven."
                 )
                 self._refresh_warning.show()
@@ -137,5 +150,5 @@ class ControlPanel(QWidget):
             self.start_requested.emit()
             self._running = True
             self._toggle_btn.setText("Stop")
-            self._status_label.setText("Running — 40Hz entrainment active")
+            self._status_label.setText(f"Running — {MOD_FREQ:.0f}Hz entrainment active")
             self._status_label.setStyleSheet("color: green; font-weight: bold;")
