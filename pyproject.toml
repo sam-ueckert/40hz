@@ -1,0 +1,16 @@
+[project]
+name = "gamma40hz"
+version = "0.1.0"
+description = "40Hz gamma entrainment: synchronized audio tone and visual flash"
+requires-python = ">=3.10"
+dependencies = [
+    "PyQt6",
+    "sounddevice",
+    "numpy",
+]
+
+[project.scripts]
+gamma40hz = "main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
